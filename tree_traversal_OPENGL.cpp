@@ -312,3 +312,380 @@ void drawedge(int root, int i, int c)
 	glEnd();
 	glFlush();
 }
+int FindPosition(int i)
+{
+	printf("IN findposition Func\n");
+	int root = 0;
+	
+	while (root<i)
+	{
+		if(a[i].value==i)
+		{
+		//eqflag=0;
+		printf("equal");
+		//break;
+		//glutPostRedisplay();
+		//continue;
+		//return 0;
+		}
+		//printf("skipped equal");
+	
+		while (a[i].value<a[root].value && (a[root].left != -1))
+			root = a[root].left;
+		while (a[i].value>a[root].value && (a[root].right != -1))
+			root = a[root].right;
+		if (a[i].value<a[root].value && (a[root].left == -1))
+		{
+			lflag = 1;
+			a[i].level = a[root].level + 1;
+			a[i].x = a[root].x - (4.0f / a[i].level);
+			a[i].y = a[root].y - 3;
+			a[root].left = a[i].key;
+			a[i].parent = root;
+			return root;
+		}
+		else if (a[i].value>a[root].value && (a[root].right == -1))
+		{
+			rflag = 1;
+			a[i].level = a[root].level + 1;
+			a[i].x = a[root].x + (4.0f / a[i].level);
+			a[i].y = a[root].y - 3;
+			a[root].right = a[i].key;
+			a[i].parent = root;
+			return root;
+		}
+	}
+}
+void treecreate()
+{
+	printf("IN treecreatre Func\n");
+	drawnode(0, 2);
+	for (int i = 1; i<n; i++)
+	{
+		drawnode(i, 2);
+		drawedge(a[i].parent, i, 2);
+	}
+}
+void insert(int c)
+{
+	printf("IN insert Func%d\n",c);
+	
+		printf("%d",n);
+	int root;
+	a[n].value = atoi(a[n].data);
+	a[n].left = -1;
+	a[n].right = -1;
+	a[n].key = n;
+	glColor3f(0.0, 0.0, 0.0);
+	if (!n)
+	{
+		a[n].x = 13.0;
+		a[n].y = 25.0;
+		a[n].parent = -1;
+		drawnode(n, 2);
+	}
+	else
+	{
+		root = FindPosition(n);
+		if (lflag)
+		{
+			drawstring(2, 5, a[n].data, c);
+			drawstring(3, 5, "is lesser than it's root, so it goes to the left ", c);
+			lflag = 0;
+		}
+		else if (rflag)
+		{
+			drawstring(2, 5, a[n].data, c);
+			drawstring(3, 5, "is greater than it's root, so it goes to the right ", c);
+			rflag = 0;
+		}
+		delay(10000);
+		drawnode(n, 2);
+		drawedge(root, n, 2);
+	}
+	n++;
+	count = 0;
+	
+}
+void display()
+{
+	printf("\n\n");
+	printf("In Display func\n");
+	
+	char s1[] = "Enter an element and press 'i' to insert that element into the tree.";
+	char s2[] = "Enter an element and press 'd' to delete that element from the tree.";
+	char s3[] = "ROOT-->LEFT SUBTREE-->RIGHT SUBTREE";
+	char s4[] = "LEFT SUBTREE-->ROOT-->RIGHT SUBTREE";
+	char s5[] = "LEFT SUBTREE-->RIGHT SUBTREE-->ROOT";
+	float l = 22.0, m = 26.0, w = 2.0;
+	int i;
+	glClear(GL_COLOR_BUFFER_BIT);
+	if (flag)
+	{
+		title();
+		flag = 0;
+	}
+	else
+	{
+		drawWindow(2, 6, 24, 29);
+		menu(GL_RENDER);
+		if (n)
+		{
+			treecreate();
+			eflag = 0;
+		}
+		if (ins)
+		{
+			drawstring(2, 5, s1, 2);
+			drawstring(2, 4, "Do not enter duplicate elements.", 2);
+			c1 = 0;
+			ins = 0;
+		}
+		if (del)
+		{
+			drawstring(2, 5, s2, 2);
+			c2 = 0;
+			del = 0;
+
+		}
+		if (pre)
+		{
+			if (!eflag)
+			{
+				drawstring(2, 5, s3, 2);
+				preorder();
+				for (i = 0; i<n; i++)
+				{
+					drawbox(l, m, w, p[i], 3);
+					drawnode(p[i], 3);
+					delay();
+					m = m - w;
+				}
+			}
+			else
+				drawstring(2, 4, "Tree empty,cannot be traversed!", 2);
+			c3 = 0;
+			pre = 0;
+		}
+		if (in)
+		{
+			if (!eflag)
+			{
+				drawstring(2, 5, s4, 2);
+				inorder();
+				for (i = 0; i<n; i++)
+				{
+					drawbox(l, m, w, p[i], 3);
+					drawnode(p[i], 3);
+					delay();
+					m = m - w;
+				}
+			}
+			else
+				drawstring(2, 4, "Tree empty,cannot be traversed!", 2);
+			c4 = 0;
+			in = 0;
+		}
+		if (post)
+		{
+			if (!eflag)
+			{
+				drawstring(2, 5, s5, 2);
+				preorder();
+				for (i = 0; i<n; i++)
+				{
+					drawbox(l, m, w, p[i], 3);
+					drawnode(p[i], 3);
+					delay();
+					m = m - w;
+				}
+			}
+			else
+				drawstring(2, 4, "Tree empty,cannot be traversed!", 2);
+			c5 = 0;
+			post = 0;
+		}
+		if (ex)
+		{
+			exit(0);
+		}
+	}
+	glFlush();
+}
+void deleteTree()
+{
+	printf("In deletetree func\n");
+	int i, j, m, temp[30], pos, suc;
+	a[n].value = atoi(a[n].data);
+	j = 0;
+	while (a[n].data[j] != '\0')
+	{
+		a[n].data[j] = '\0';
+		j++;
+	}
+	for (i = 0; i<n; i++)
+	if (a[i].value == a[n].value)
+		break;
+	drawnode(i, 3);
+	delay();
+	n--;
+	if ((a[i].left == -1 && a[i].right == -1) || (a[i].left&&a[i].right == -1))
+		a[i].value = -999;
+	else
+	{
+		inorder();
+		j = 0;
+		while (p[j] != i)
+			j++;
+		suc = p[j + 1];
+		a[i].value = a[suc].value;
+		a[suc].value = -999;
+	}
+	j = 0;
+	pos = 0;
+	while (j <= n)
+	{
+		if (a[j].value != -999)
+			temp[pos++] = a[j].value;
+		j++;
+	}
+	m = n;
+	n = 0;
+	while (n<m)
+	{
+		itoa (temp[n], a[n].data, 10);
+		//atoi (a[n].data);
+		insert(4);
+	}
+	j = 0;
+	while (a[m].data[j] != '\0')
+	{
+		a[m].data[j] = '\0';
+		j++;
+	}
+	count = 0;
+	glutPostRedisplay();
+}
+int enterno=25,clearminibox=0;
+void displaynum(char string)
+{
+	if(clearminibox==1)
+	{
+		//glColor3f(1.0,1.0,1.0);
+		//glRectd(25, 24, 29, 26);
+	}
+	//int inpos=25+(no*2);//, numpar=0;
+	printf("%d",enterno);
+	
+		//drawstring(inpos, 24,n, 2);
+	printf("IN displaynum Func\n");
+	char *c;
+	glColor3fv(color[2]);
+	
+	glRasterPos2f(enterno, 25);
+	//for (c = string; *c != '\0'; c++)
+	{
+		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, string);
+	}
+		
+	enterno++;
+
+	//drawstring(25, float y, char *string, int col)
+
+}
+
+
+
+void keyboard(unsigned char key, int x, int y)
+{
+	printf("In keyboard func\n");
+	switch (key)
+	{
+		enterno++;
+	case 'c':glutPostRedisplay();
+		break;
+	case '0':a[n].data[count++] = '0';
+		displaynum('0');
+		break;
+	case '1':a[n].data[count++] = '1';
+		displaynum('1');
+		break;
+	case '2':a[n].data[count++] = '2';displaynum('2');
+		break;
+	case '3':a[n].data[count++] = '3';displaynum('3');
+		break;
+	case '4':a[n].data[count++] = '4';displaynum('4');
+		break;
+	case '5':a[n].data[count++] = '5';displaynum('5');
+		break;
+	case '6':a[n].data[count++] = '6';displaynum('6');
+		break;
+	case '7':a[n].data[count++] = '7';displaynum('7');
+		break;
+	case '8':a[n].data[count++] = '8';displaynum('8');
+		break;
+	case '9':a[n].data[count++] = '9';displaynum('9');
+		break;
+	case 'i':clearminibox=1;
+		insert(2);
+		glutPostRedisplay();
+		enterno=25;
+		break;
+	case 'd':clearminibox=1;
+		deleteTree();
+		
+		enterno=25;
+		break;
+	}
+}
+void pick(int button, int state, int x, int y)
+{
+	printf("In pick(mouse) func\n");
+	GLuint selectBuf[size];
+	GLint hits;
+	GLint viewport[4];
+	if (button != GLUT_LEFT_BUTTON || state != GLUT_DOWN)
+		return;
+	glGetIntegerv(GL_VIEWPORT, viewport);
+	glSelectBuffer(size, selectBuf);
+	(void)glRenderMode(GL_SELECT);
+	glInitNames();
+	glPushName(0);
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	/* create 5x5 pixel picking region near cursor location */
+	gluPickMatrix((GLdouble)x, (GLdouble)(viewport[3] - y), 4.0, 4.0, viewport);
+	gluOrtho2D(0.0, 30.0, 0.0, 30.0);
+	menu(GL_SELECT);
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glFlush();
+	hits = glRenderMode(GL_RENDER);
+	processHits(hits, selectBuf);
+	glutPostRedisplay();
+}
+void myinit()
+{
+	glClearColor(1.0, 1.0, 1.0, 0.0);
+	//	glClearColor(0.0, 0.0, 0.0, 1.0);
+	glColor3f(1.0, 1.0, 1.0);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluOrtho2D(0, 30, 0, 30);
+	glMatrixMode(GL_MODELVIEW);
+}
+int main(int argc, char *argv[])
+{
+	glutInit(&argc, argv);
+	glutInitDisplayMode(GLUT_RGB | GLUT_SINGLE);
+	glColor3f(1,0,0);
+	glutInitWindowPosition(0, 0);
+	glutInitWindowSize(1270, 770);
+	glutCreateWindow("binary search tree");
+	glutDisplayFunc(display);
+	glutKeyboardFunc(keyboard);
+	glutMouseFunc(pick);
+	myinit();
+	glutMainLoop();
+}
